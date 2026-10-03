@@ -104,3 +104,49 @@ public class UserDAO implements IUserDAO {
         return rowUpdated;
     }
 }
+// 1. Tìm kiếm User theo Country
+public List<User> selectUsersByCountry(String country) {
+    List<User> users = new ArrayList<>();
+    String query = "SELECT id, name, email, country FROM users WHERE country LIKE ?";
+    
+    try (Connection connection = getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        
+        preparedStatement.setString(1, "%" + country + "%");
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            int id = rs.getInt("id");
+            String name = rs.getString("name");
+            String email = rs.getString("email");
+            String userCountry = rs.getString("country");
+            users.add(new User(id, name, email, userCountry));
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return users;
+}
+
+// 2. Lấy danh sách User sắp xếp theo Name (A-Z)
+public List<User> selectAllUsersSortedByName() {
+    List<User> users = new ArrayList<>();
+    String query = "SELECT id, name, email, country FROM users ORDER BY name ASC";
+    
+    try (Connection connection = getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            int id = rs.getInt("id");
+            String name = rs.getString("name");
+            String email = rs.getString("email");
+            String country = rs.getString("country");
+            users.add(new User(id, name, email, country));
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return users;
+}
