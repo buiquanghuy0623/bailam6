@@ -131,3 +131,57 @@ public class UserServlet extends HttpServlet {
         response.sendRedirect("users");
     }
 }
+@WebServlet("/users")
+public class UserServlet extends HttpServlet {
+    private UserDAO userDAO;
+
+    public void init() {
+        userDAO = new UserDAO();
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String action = request.getParameter("action");
+        if (action == null) {
+            action = "";
+        }
+
+        switch (action) {
+            case "search":
+                searchByCountry(request, response);
+                break;
+            case "sort":
+                sortByName(request, response);
+                break;
+            default:
+                listUser(request, response);
+                break;
+        }
+    }
+
+    private void searchByCountry(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String country = request.getParameter("country");
+        List<User> listUser = userDAO.selectUsersByCountry(country);
+        request.setAttribute("listUser", listUser);
+        request.setAttribute("searchCountry", country); // Giữ lại giá trị tìm kiếm trên UI
+        RequestDispatcher dispatcher = request.getRequestDispatcher("user/list.jsp");
+        dispatcher.forward(request, response);
+    }
+
+    private void sortByName(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        List<User> listUser = userDAO.selectAllUsersSortedByName();
+        request.setAttribute("listUser", listUser);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("user/list.jsp");
+        dispatcher.forward(request, response);
+    }
+
+    private void listUser(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        List<User> listUser = userDAO.selectAllUsers();
+        request.setAttribute("listUser", listUser);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("user/list.jsp");
+        dispatcher.forward(request, response);
+    }
+}
